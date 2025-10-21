@@ -111,6 +111,33 @@ public class TermServiceImpl implements TermService {
         termRepository.deleteById(id);
         logger.info("Term deleted successfully");
     }
+
+    @Override
+    public java.util.List<com.trackademy.dto.CycleDto> getAvailableCycles() {
+        logger.debug("Fetching available cycles for onboarding");
+        return java.util.Arrays.asList(
+                com.trackademy.dto.CycleDto.builder()
+                        .id(1)
+                        .label("Ciclo I")
+                        .description("Primer Ciclo")
+                        .build(),
+                com.trackademy.dto.CycleDto.builder()
+                        .id(2)
+                        .label("Ciclo II")
+                        .description("Segundo Ciclo")
+                        .build(),
+                com.trackademy.dto.CycleDto.builder()
+                        .id(3)
+                        .label("Ciclo III")
+                        .description("Tercer Ciclo")
+                        .build(),
+                com.trackademy.dto.CycleDto.builder()
+                        .id(4)
+                        .label("Ciclo IV")
+                        .description("Cuarto Ciclo")
+                        .build()
+        );
+    }
     
     private TermDTO mapToDTO(Term term) {
         return TermDTO.builder()

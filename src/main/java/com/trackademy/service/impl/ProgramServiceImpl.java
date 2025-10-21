@@ -78,7 +78,15 @@ public class ProgramServiceImpl implements ProgramService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
-    
+
+    @Override
+    public List<ProgramDTO> getAllPrograms() {
+        logger.debug("Fetching all programs");
+        return programRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public ProgramDTO updateProgram(Long id, ProgramDTO programDTO) {
         logger.info("Updating program with ID: {}", id);

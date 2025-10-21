@@ -12,4 +12,5 @@ public interface CampusService {
     List<CampusDTO> getAllCampus();
     CampusDTO updateCampus(Long id, CampusDTO campusDTO);
     void deleteCampus(Long id);
+    List<CampusDTO> getAllCampusesForOnboarding();
 }

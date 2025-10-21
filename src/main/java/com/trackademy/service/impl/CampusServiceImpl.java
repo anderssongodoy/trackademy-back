@@ -89,6 +89,16 @@ public class CampusServiceImpl implements CampusService {
         campusRepository.deleteById(id);
         logger.info("Campus deleted successfully");
     }
+
+    @Override
+    public List<CampusDTO> getAllCampusesForOnboarding() {
+        logger.debug("Fetching all active campuses for onboarding");
+        return campusRepository.findAll()
+                .stream()
+                .filter(campus -> campus.getActive() != null && campus.getActive())
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
     
     private CampusDTO mapToDTO(Campus campus) {
         return CampusDTO.builder()

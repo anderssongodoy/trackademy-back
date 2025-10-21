@@ -10,6 +10,7 @@ public interface ProgramService {
     Optional<ProgramDTO> getProgramById(Long id);
     Optional<ProgramDTO> getProgramBySlug(String slug);
     List<ProgramDTO> getProgramsByInstitution(Long institutionId);
+    List<ProgramDTO> getAllPrograms();
     ProgramDTO updateProgram(Long id, ProgramDTO programDTO);
     void deleteProgram(Long id);
 }

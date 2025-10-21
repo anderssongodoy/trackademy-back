@@ -1,47 +1,38 @@
 package com.trackademy.controller;
 
-import org.springframework.http.HttpStatus;
+import com.trackademy.dto.IdTokenRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.trackademy.dto.UserDTO;
-import com.trackademy.entity.User;
-import com.trackademy.security.JwtUserAuthentication;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth/entra")
 public class AuthController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-    
-    @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
-        if (authentication == null || !(authentication instanceof JwtUserAuthentication)) {
-            logger.warn("Unauthorized access to /api/auth/me");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    private final JwtDecoder jwtDecoder;
+
+    public AuthController(JwtDecoder jwtDecoder) {
+        this.jwtDecoder = jwtDecoder;
+    }
+
+    @PostMapping("/callback")
+    public ResponseEntity<?> callback(@RequestBody IdTokenRequest body) {
+        if (body == null || body.getIdToken() == null || body.getIdToken().isBlank()) {
+            return ResponseEntity.badRequest().build();
         }
-        
-        JwtUserAuthentication auth = (JwtUserAuthentication) authentication;
-        User user = auth.getUser();
-        
-        logger.info("Current user retrieved: email={}", user.getEmail());
-        
-        UserDTO dto = UserDTO.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .name(user.getName())
-                .picture(user.getPicture())
-                .provider(user.getProvider())
-                .role(user.getRole())
-                .active(user.getActive())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-        
-        return ResponseEntity.ok(dto);
+        Jwt jwt = jwtDecoder.decode(body.getIdToken());
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("sub", jwt.getClaim("sub"));
+        resp.put("name", jwt.getClaim("name"));
+        resp.put("preferred_username", jwt.getClaim("preferred_username"));
+        resp.put("email", jwt.getClaim("email"));
+        return ResponseEntity.ok(resp);
     }
 }
