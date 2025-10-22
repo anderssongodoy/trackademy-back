@@ -22,4 +22,8 @@ public class OnboardingRequestDto {
     private Boolean wantsAlerts;
     private Boolean wantsIncentives;
     private Boolean allowDataSharing;
+    private List<String> preferredStudyTimes;
+    private Integer workHoursPerWeek;
+    private Integer extracurricularHoursPerWeek;
+    private String weeklyAvailabilityJson;
 }

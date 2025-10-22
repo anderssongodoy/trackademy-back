@@ -22,6 +22,11 @@ public class TermController {
     public ResponseEntity<TermDTO> createTerm(@RequestBody TermDTO termDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(termService.createTerm(termDTO));
     }
+
+    @GetMapping
+    public ResponseEntity<List<TermDTO>> getAllTerms() {
+        return ResponseEntity.ok(termService.getAllTerms());
+    }
     
     @GetMapping("/{id}")
     public ResponseEntity<TermDTO> getTerm(@PathVariable Long id) {

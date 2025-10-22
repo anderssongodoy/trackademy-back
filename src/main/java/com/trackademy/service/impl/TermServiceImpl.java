@@ -81,6 +81,14 @@ public class TermServiceImpl implements TermService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TermDTO> getAllTerms() {
+        logger.debug("Fetching all terms");
+        return termRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
     
     @Override
     public TermDTO updateTerm(Long id, TermDTO termDTO) {

@@ -37,8 +37,16 @@ public class OnboardingService {
             user.setOnboarded(true);
 
             if (request.getCampus() != null) {
-                Campus campus = campusRepository.findByName(request.getCampus())
-                        .orElseThrow(() -> new NoSuchElementException("Campus no encontrado"));
+                Campus campus;
+                String campusVal = String.valueOf(request.getCampus());
+                if (campusVal.matches("^\\d+$")) {
+                    Long id = Long.parseLong(campusVal);
+                    campus = campusRepository.findById(id)
+                            .orElseThrow(() -> new NoSuchElementException("Campus no encontrado"));
+                } else {
+                    campus = campusRepository.findByName(campusVal)
+                            .orElseThrow(() -> new NoSuchElementException("Campus no encontrado"));
+                }
                 user.setPreferredCampus(campus);
             }
 
@@ -47,7 +55,7 @@ public class OnboardingService {
             }
 
             if (request.getProgram() != null) {
-                user.setPreferredProgram(request.getProgram());
+                user.setPreferredProgram(String.valueOf(request.getProgram()));
             }
 
             if (request.getSpecialization() != null) {
@@ -68,6 +76,22 @@ public class OnboardingService {
 
             if (request.getMotivationFactors() != null) {
                 user.setMotivationFactors(String.join(",", request.getMotivationFactors()));
+            }
+
+            if (request.getPreferredStudyTimes() != null) {
+                user.setPreferredStudyTimes(String.join(",", request.getPreferredStudyTimes()));
+            }
+
+            if (request.getWorkHoursPerWeek() != null) {
+                user.setWorkHoursPerWeek(request.getWorkHoursPerWeek());
+            }
+
+            if (request.getExtracurricularHoursPerWeek() != null) {
+                user.setExtracurricularHoursPerWeek(request.getExtracurricularHoursPerWeek());
+            }
+
+            if (request.getWeeklyAvailabilityJson() != null) {
+                user.setWeeklyAvailability(request.getWeeklyAvailabilityJson());
             }
 
             userRepository.save(user);
@@ -107,10 +131,20 @@ public class OnboardingService {
                 .wantsAlerts(user.getWantsAlerts())
                 .wantsIncentives(user.getWantsIncentives())
                 .allowDataSharing(user.getAllowDataSharing())
+        .preferredStudyTimes(user.getPreferredStudyTimes() != null ? java.util.Arrays.asList(user.getPreferredStudyTimes().split(",")) : null)
+        .workHoursPerWeek(user.getWorkHoursPerWeek())
+        .extracurricularHoursPerWeek(user.getExtracurricularHoursPerWeek())
+        .weeklyAvailabilityJson(user.getWeeklyAvailability())
                 .build();
     }
 
     public OnboardingResponseDto updateOnboarding(OnboardingRequestDto request, String userEmail) {
         return saveOnboarding(request, userEmail);
+    }
+
+    public boolean isOnboarded(String userEmail) {
+        return userRepository.findByEmail(userEmail)
+                .map(u -> Boolean.TRUE.equals(u.getOnboarded()))
+                .orElse(false);
     }
 }

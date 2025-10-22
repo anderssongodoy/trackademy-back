@@ -12,6 +12,7 @@ public interface TermService {
     Optional<TermDTO> getTermByCode(String code);
     List<TermDTO> getTermsByInstitution(Long institutionId);
     List<TermDTO> getTermsByYear(Integer year);
+    List<TermDTO> getAllTerms();
     TermDTO updateTerm(Long id, TermDTO termDTO);
     void deleteTerm(Long id);
     List<CycleDto> getAvailableCycles();

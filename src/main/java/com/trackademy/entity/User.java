@@ -81,6 +81,18 @@ public class User {
     @Column(name = "allow_data_sharing")
     private Boolean allowDataSharing;
 
+    @Column(name = "preferred_study_times")
+    private String preferredStudyTimes;
+
+    @Column(name = "work_hours_per_week")
+    private Integer workHoursPerWeek;
+
+    @Column(name = "extracurricular_hours_per_week")
+    private Integer extracurricularHoursPerWeek;
+
+    @Column(name = "weekly_availability", columnDefinition = "TEXT")
+    private String weeklyAvailability;
+
     @Column(name = "onboarded")
     private Boolean onboarded;
 

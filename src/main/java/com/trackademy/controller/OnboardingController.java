@@ -6,7 +6,9 @@ import com.trackademy.service.OnboardingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/onboarding")
@@ -19,8 +21,14 @@ public class OnboardingController {
     public ResponseEntity<OnboardingResponseDto> submitOnboarding(
             @RequestBody OnboardingRequestDto request,
             Authentication authentication) {
-        
-        String userEmail = authentication.getName();
+
+        String userEmail = null;
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Object emailClaim = jwtAuth.getToken().getClaims().get("email");
+            if (emailClaim == null) emailClaim = jwtAuth.getToken().getClaims().get("preferred_username");
+            if (emailClaim != null) userEmail = emailClaim.toString();
+        }
+        if (userEmail == null) userEmail = authentication.getName();
         OnboardingResponseDto response = onboardingService.saveOnboarding(request, userEmail);
         
         return ResponseEntity.ok(response);
@@ -28,7 +36,13 @@ public class OnboardingController {
 
     @GetMapping("/me")
     public ResponseEntity<OnboardingRequestDto> getMyOnboarding(Authentication authentication) {
-        String userEmail = authentication.getName();
+        String userEmail = null;
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Object emailClaim = jwtAuth.getToken().getClaims().get("email");
+            if (emailClaim == null) emailClaim = jwtAuth.getToken().getClaims().get("preferred_username");
+            if (emailClaim != null) userEmail = emailClaim.toString();
+        }
+        if (userEmail == null) userEmail = authentication.getName();
         OnboardingRequestDto onboarding = onboardingService.getOnboarding(userEmail);
         
         return ResponseEntity.ok(onboarding);
@@ -38,10 +52,29 @@ public class OnboardingController {
     public ResponseEntity<OnboardingResponseDto> updateOnboarding(
             @RequestBody OnboardingRequestDto request,
             Authentication authentication) {
-        
-        String userEmail = authentication.getName();
+
+        String userEmail = null;
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Object emailClaim = jwtAuth.getToken().getClaims().get("email");
+            if (emailClaim == null) emailClaim = jwtAuth.getToken().getClaims().get("preferred_username");
+            if (emailClaim != null) userEmail = emailClaim.toString();
+        }
+        if (userEmail == null) userEmail = authentication.getName();
         OnboardingResponseDto response = onboardingService.updateOnboarding(request, userEmail);
         
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<Map<String, Object>> getOnboardingStatus(Authentication authentication) {
+        String userEmail = null;
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Object emailClaim = jwtAuth.getToken().getClaims().get("email");
+            if (emailClaim == null) emailClaim = jwtAuth.getToken().getClaims().get("preferred_username");
+            if (emailClaim != null) userEmail = emailClaim.toString();
+        }
+        if (userEmail == null) userEmail = authentication.getName();
+        boolean onboarded = onboardingService.isOnboarded(userEmail);
+        return ResponseEntity.ok(Map.of("onboarded", onboarded));
     }
 }

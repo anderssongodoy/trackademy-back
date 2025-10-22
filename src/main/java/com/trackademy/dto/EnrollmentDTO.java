@@ -18,6 +18,10 @@ public class EnrollmentDTO {
     private Long termId;
     private Long campusId;
     private Long programId;
+    // Readable fields for frontend
+    private String termCode;
+    private String campusName;
+    private String programName;
     private String studentCode;
     private Integer currentCycle;
     private Integer entryCycle;
