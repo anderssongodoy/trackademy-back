@@ -27,5 +27,10 @@ public class StudyTask {
 
     @Column(nullable = false)
     private Boolean completado = Boolean.FALSE;
-}
 
+    @Column
+    private Integer semana;
+
+    @Column(columnDefinition = "text")
+    private String estado; // pendiente | en_progreso | hecho
+}

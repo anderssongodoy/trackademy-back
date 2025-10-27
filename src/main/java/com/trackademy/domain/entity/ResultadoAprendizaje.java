@@ -19,6 +19,8 @@ public class ResultadoAprendizaje {
     private Unidad unidad; // opcional, puede estar asociado a curso o unidad
 
     @Column(nullable = false, columnDefinition = "text")
-    private String descripcion;
-}
+    private String texto;
 
+    @Column(columnDefinition = "text")
+    private String tipo; // general | especifico
+}

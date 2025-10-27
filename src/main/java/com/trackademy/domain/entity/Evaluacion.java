@@ -19,13 +19,36 @@ public class Evaluacion {
     @Column(nullable = false, length = 40)
     private String codigo; // p.ej. PC1, EP, EF
 
-    @Column(nullable = false, length = 200)
-    private String nombre;
+    @Column(name = "descripcion", columnDefinition = "text")
+    private String descripcion;
 
-    @Column(nullable = false)
+    @Column
     private Integer semana;
 
-    @Column(nullable = false)
-    private Integer porcentaje;
-}
+    @Column(precision = 6, scale = 2)
+    private java.math.BigDecimal porcentaje;
 
+    @Column(columnDefinition = "text")
+    private String tipo; // TA, PC, EXFN, etc.
+
+    @Column(columnDefinition = "text")
+    private String observacion;
+
+    @Column(columnDefinition = "text")
+    private String modalidad;
+
+    @Column(name = "individual_grupal", columnDefinition = "text")
+    private String individualGrupal;
+
+    @Column(columnDefinition = "text")
+    private String producto;
+
+    @Column(nullable = false)
+    private Boolean flexible = Boolean.FALSE;
+
+    @Column(name = "unidad_nro")
+    private Integer unidadNro;
+
+    @Column(name = "atributos_json", columnDefinition = "text")
+    private String atributosJson; // usar jsonb en prod
+}

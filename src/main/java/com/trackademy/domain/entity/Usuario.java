@@ -15,5 +15,17 @@ public class Usuario {
 
     @Column(length = 200)
     private String email;
-}
 
+    @Column(columnDefinition = "text")
+    private String nombre;
+
+    @Column(name = "created_at", nullable = false)
+    private java.time.OffsetDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = java.time.OffsetDateTime.now();
+        }
+    }
+}

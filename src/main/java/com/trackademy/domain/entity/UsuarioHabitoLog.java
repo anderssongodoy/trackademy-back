@@ -6,7 +6,9 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "usuario_habito_log")
+@Table(name = "usuario_habito_log", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_habito_fecha", columnNames = {"usuario_habito_id", "fecha"})
+})
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UsuarioHabitoLog {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,5 +23,7 @@ public class UsuarioHabitoLog {
 
     @Column(nullable = false)
     private Boolean cumplido = Boolean.FALSE;
-}
 
+    @Column(columnDefinition = "text")
+    private String nota;
+}

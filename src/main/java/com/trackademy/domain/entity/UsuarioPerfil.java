@@ -14,16 +14,15 @@ public class UsuarioPerfil {
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "campus_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "campus_id", nullable = false)
     private Campus campus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "periodo_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "periodo_id", nullable = false)
     private Periodo periodo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "carrera_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "carrera_id", nullable = false)
     private Carrera carrera;
 }
-

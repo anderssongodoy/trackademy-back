@@ -21,5 +21,22 @@ public class UsuarioCursoResumen {
 
     @Column(name = "nota_necesaria", precision = 5, scale = 2)
     private BigDecimal notaNecesaria;
-}
 
+    @Column(name = "progreso_porcentaje", precision = 6, scale = 2)
+    private BigDecimal progresoPorcentaje;
+
+    @Column(name = "nota_final", precision = 6, scale = 2)
+    private BigDecimal notaFinal;
+
+    @Column
+    private Integer creditos;
+
+    @Column(name = "riesgo_aplazo_score", precision = 6, scale = 2)
+    private BigDecimal riesgoAplazoScore;
+
+    @Column(name = "siguiente_hito_semana")
+    private Integer siguienteHitoSemana;
+
+    @Column(name = "siguiente_hito_fecha")
+    private java.time.LocalDate siguienteHitoFecha;
+}

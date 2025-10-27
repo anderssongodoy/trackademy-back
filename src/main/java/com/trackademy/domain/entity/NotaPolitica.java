@@ -10,11 +10,13 @@ public class NotaPolitica {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curso_id", nullable = false, unique = true)
-    private Curso curso;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "curso_id", nullable = false)
+    private Curso curso; // permite múltiples secciones
 
-    @Column(nullable = false, columnDefinition = "text")
-    private String politica;
+    @Column(columnDefinition = "text")
+    private String seccion;
+
+    @Column(columnDefinition = "text")
+    private String texto;
 }
-

@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SilaboRepository extends JpaRepository<Silabo, Long> {
-    Optional<Silabo> findByCursoId(Long cursoId);
+    Optional<Silabo> findFirstByCursoIdAndVigenteTrueOrderByIdDesc(Long cursoId);
 }
-

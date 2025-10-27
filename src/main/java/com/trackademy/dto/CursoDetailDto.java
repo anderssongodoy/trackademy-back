@@ -8,9 +8,10 @@ public record CursoDetailDto(
         String nombre,
         Integer horasSemanales,
         String silaboDescripcion,
+        java.util.List<ResultadoAprendizajeDto> resultadosAprendizaje,
         List<UnidadDto> unidades,
         List<EvaluacionDto> evaluaciones,
         List<String> bibliografia,
         List<String> competencias,
-        String notaPolitica
+        java.util.List<NotaPoliticaDto> politicas
 ) {}

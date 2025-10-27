@@ -29,6 +29,7 @@ public class CatalogServiceImpl implements CatalogService {
     private final NotaPoliticaRepository notaPoliticaRepository;
     private final SilaboRepository silaboRepository;
     private final CursoCompetenciaRepository cursoCompetenciaRepository;
+    private final ResultadoAprendizajeRepository resultadoAprendizajeRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -55,8 +56,8 @@ public class CatalogServiceImpl implements CatalogService {
         Curso curso = cursoRepository.findById(cursoId)
                 .orElseThrow(() -> new IllegalArgumentException("Curso no encontrado"));
 
-        var unidades = unidadRepository.findByCursoIdOrderByNumeroAsc(cursoId).stream()
-                .map(u -> new UnidadDto(u.getId(), u.getNumero(), u.getTitulo(),
+        var unidades = unidadRepository.findByCursoIdOrderByNroAsc(cursoId).stream()
+                .map(u -> new UnidadDto(u.getId(), u.getNro(), u.getTitulo(),
                         temaRepository.findByUnidadIdOrderByIdAsc(u.getId()).stream()
                                 .map(t -> new TemaDto(t.getId(), t.getTitulo()))
                                 .collect(Collectors.toList())
@@ -64,25 +65,34 @@ public class CatalogServiceImpl implements CatalogService {
                 .collect(Collectors.toList());
 
         var evals = evaluacionRepository.findByCursoIdOrderBySemanaAsc(cursoId).stream()
-                .map(e -> new EvaluacionDto(e.getId(), e.getCodigo(), e.getNombre(), e.getSemana(), e.getPorcentaje()))
+                .map(e -> new EvaluacionDto(e.getId(), e.getCodigo(), e.getDescripcion(), e.getSemana(), e.getPorcentaje()))
                 .collect(Collectors.toList());
 
         var biblio = bibliografiaRepository.findByCursoId(cursoId).stream()
                 .map(b -> b.getReferencia())
                 .collect(Collectors.toList());
 
-        var politica = notaPoliticaRepository.findByCursoId(cursoId)
-                .map(NotaPolitica::getPolitica)
-                .orElse(null);
+        var politicas = notaPoliticaRepository.findByCursoId(cursoId)
+                .stream()
+                .map(np -> new com.trackademy.dto.NotaPoliticaDto(np.getSeccion(), np.getTexto()))
+                .collect(Collectors.toList());
 
-        var silabo = silaboRepository.findByCursoId(cursoId).map(Silabo::getDescripcion).orElse(null);
+        var silabo = silaboRepository.findFirstByCursoIdAndVigenteTrueOrderByIdDesc(cursoId)
+                .map(Silabo::getSumilla)
+                .orElse(null);
 
         var competencias = cursoCompetenciaRepository.findByCursoId(cursoId).stream()
                 .map(cc -> cc.getCompetencia().getNombre())
                 .sorted()
                 .collect(Collectors.toList());
 
+        var resultados = resultadoAprendizajeRepository.findByCursoId(cursoId).stream()
+                .map(ra -> new ResultadoAprendizajeDto(
+                        ra.getId(), ra.getTexto(), ra.getTipo(), ra.getUnidad() != null ? ra.getUnidad().getId() : null
+                ))
+                .collect(Collectors.toList());
+
         return new CursoDetailDto(curso.getId(), curso.getCodigo(), curso.getNombre(), curso.getHorasSemanales(),
-                silabo, unidades, evals, biblio, competencias, politica);
+                silabo, resultados, unidades, evals, biblio, competencias, politicas);
     }
 }

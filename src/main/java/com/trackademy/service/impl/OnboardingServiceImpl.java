@@ -90,7 +90,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                     .map(ue -> new UsuarioEvaluacionDto(
                             ue.getId(),
                             ue.getEvaluacionOriginal().getCodigo(),
-                            ue.getEvaluacionOriginal().getNombre(),
+                            ue.getEvaluacionOriginal().getDescripcion(),
                             ue.getSemana(), ue.getPorcentaje(), ue.getFechaEstimada(),
                             ue.getNota() == null ? null : ue.getNota().toPlainString()
                     ))
@@ -112,4 +112,3 @@ public class OnboardingServiceImpl implements OnboardingService {
         return startMonday.plusWeeks(semana - 1L);
     }
 }
-

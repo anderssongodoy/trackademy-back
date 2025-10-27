@@ -24,5 +24,16 @@ public class UsuarioCursoHorario {
 
     @Column(name = "duracion_min", nullable = false)
     private Integer duracionMin; // 45, 90, 135, 180
-}
 
+    @Column(name = "bloque_nro")
+    private Integer bloqueNro;
+
+    @Column(name = "tipo_sesion", columnDefinition = "text")
+    private String tipoSesion; // Clase | Estudio | Laboratorio | etc
+
+    @Column(columnDefinition = "text")
+    private String ubicacion;
+
+    @Column(name = "url_virtual", columnDefinition = "text")
+    private String urlVirtual;
+}

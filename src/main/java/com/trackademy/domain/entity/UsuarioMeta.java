@@ -27,5 +27,14 @@ public class UsuarioMeta {
 
     @Column
     private Integer progreso; // 0-100
-}
 
+    @Column(columnDefinition = "text")
+    private String tipo; // rendimiento | habitos | asistencia | proyecto
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "curso_id")
+    private Curso curso;
+
+    @Column(columnDefinition = "text")
+    private String estado; // activa | pausada | completada
+}

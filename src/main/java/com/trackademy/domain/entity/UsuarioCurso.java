@@ -19,5 +19,7 @@ public class UsuarioCurso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
-}
 
+    @Column
+    private Boolean activo = Boolean.TRUE;
+}

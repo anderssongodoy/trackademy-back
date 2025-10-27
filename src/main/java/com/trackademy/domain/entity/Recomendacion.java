@@ -24,5 +24,22 @@ public class Recomendacion {
 
     @Column(nullable = false)
     private Boolean activo = Boolean.TRUE;
-}
 
+    @Column(columnDefinition = "text")
+    private String tipo; // estudio | organizacion | riesgo | bienestar
+
+    @Column
+    private Short prioridad; // 1..3
+
+    @Column(columnDefinition = "text")
+    private String mensaje;
+
+    @Column(name = "data_json", columnDefinition = "text")
+    private String dataJson;
+
+    @Column(name = "creada_en")
+    private java.time.OffsetDateTime creadaEn;
+
+    @Column(name = "leida_en")
+    private java.time.OffsetDateTime leidaEn;
+}

@@ -35,5 +35,13 @@ public class AgendaEvento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_evaluacion_id")
     private UsuarioEvaluacion usuarioEvaluacion; // opcional
-}
 
+    @Column(columnDefinition = "text")
+    private String fuente; // evaluacion | manual | habito | sistema
+
+    @Column(name = "ref_id")
+    private Long refId;
+
+    @Column(columnDefinition = "text")
+    private String estado; // activo | cancelado | completado
+}

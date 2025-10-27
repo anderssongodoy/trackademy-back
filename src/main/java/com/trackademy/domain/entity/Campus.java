@@ -16,5 +16,7 @@ public class Campus {
 
     @Column(nullable = false, length = 120)
     private String nombre;
-}
 
+    @Column(columnDefinition = "text")
+    private String timezone; // default: America/Lima
+}

@@ -6,7 +6,8 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "periodo")
+@Table(name = "periodo",
+        uniqueConstraints = {@UniqueConstraint(name = "uk_periodo_univ_etiqueta", columnNames = {"universidad_id", "etiqueta"})})
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Periodo {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +17,12 @@ public class Periodo {
     @JoinColumn(name = "universidad_id")
     private Universidad universidad;
 
-    @Column(nullable = false, length = 50)
-    private String nombre;
+    @Column(name = "etiqueta", nullable = false, columnDefinition = "text")
+    private String etiqueta;
 
     @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
-}
 
+    @Column(name = "fecha_fin")
+    private LocalDate fechaFin;
+}

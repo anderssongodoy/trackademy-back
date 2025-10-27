@@ -1,4 +1,5 @@
 package com.trackademy.dto;
 
-public record EvaluacionDto(Long id, String codigo, String nombre, Integer semana, Integer porcentaje) {}
+import java.math.BigDecimal;
 
+public record EvaluacionDto(Long id, String codigo, String descripcion, Integer semana, BigDecimal porcentaje) {}

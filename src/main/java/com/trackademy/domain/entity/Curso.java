@@ -24,5 +24,19 @@ public class Curso {
 
     @Column(name = "horas_semanales")
     private Integer horasSemanales;
-}
 
+    @Column(name = "anio")
+    private Integer anio;
+
+    @Column(name = "periodo_texto", columnDefinition = "text")
+    private String periodoTexto;
+
+    @Column(columnDefinition = "text")
+    private String modalidad;
+
+    @Column
+    private Integer creditos;
+
+    @Column(name = "course_key", columnDefinition = "text")
+    private String courseKey;
+}

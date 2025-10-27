@@ -31,5 +31,20 @@ public class RecordatorioEvento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_evaluacion_id")
     private UsuarioEvaluacion usuarioEvaluacion; // si aplica
-}
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agenda_evento_id")
+    private AgendaEvento agendaEvento;
+
+    @Column(name = "fecha_envio")
+    private LocalDateTime fechaEnvio;
+
+    @Column(columnDefinition = "text")
+    private String canal;
+
+    @Column(columnDefinition = "text")
+    private String estado; // pendiente | enviado | cancelado
+
+    @Column(name = "payload_json", columnDefinition = "text")
+    private String payloadJson;
+}

@@ -21,16 +21,31 @@ public class UsuarioEvaluacion {
     @JoinColumn(name = "evaluacion_id", nullable = false)
     private Evaluacion evaluacionOriginal;
 
-    @Column(nullable = false)
+    @Column
     private Integer semana;
 
-    @Column(nullable = false)
-    private Integer porcentaje;
+    @Column(precision = 6, scale = 2)
+    private BigDecimal porcentaje;
 
     @Column(name = "fecha_estimada")
     private LocalDate fechaEstimada;
 
     @Column(precision = 5, scale = 2)
     private BigDecimal nota; // null si pendiente
-}
 
+    @Column
+    private Boolean exonerado;
+
+    @Column(name = "es_rezagado")
+    private Boolean esRezagado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reemplaza_a_id")
+    private UsuarioEvaluacion reemplazaA;
+
+    @Column(name = "fecha_real")
+    private LocalDate fechaReal;
+
+    @Column(columnDefinition = "text")
+    private String comentarios;
+}

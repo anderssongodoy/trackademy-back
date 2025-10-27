@@ -12,12 +12,20 @@ public class RiskEvent {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_curso_id")
     private UsuarioCurso usuarioCurso;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "curso_id")
+    private Curso curso;
+
     @Column(nullable = false, length = 80)
-    private String tipo; // p.ej. PROMEDIO_BAJO, VENCIDAS_SIN_NOTA
+    private String tipo; // bajo_promedio | falta_nota | proximidad_evaluacion | inactividad
 
     @Column(nullable = false)
     private LocalDate fecha;
@@ -27,5 +35,16 @@ public class RiskEvent {
 
     @Column(nullable = false)
     private Boolean activo = Boolean.TRUE;
-}
 
+    @Column
+    private Short severidad; // 1..3
+
+    @Column
+    private Integer semana;
+
+    @Column(name = "generado_en")
+    private java.time.OffsetDateTime generadoEn;
+
+    @Column(name = "data_json", columnDefinition = "text")
+    private String dataJson;
+}

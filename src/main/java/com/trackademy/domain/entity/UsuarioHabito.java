@@ -15,12 +15,17 @@ public class UsuarioHabito {
     private Usuario usuario;
 
     @Column(nullable = false, length = 150)
-    private String nombre;
+    private String titulo;
+
+    @Column(columnDefinition = "text")
+    private String descripcion;
 
     @Column(length = 50)
-    private String periodicidad; // p.ej. DIARIO, SEMANAL
+    private String frecuencia; // diaria | semanal | personalizada
+
+    @Column(name = "recordatorio_hora")
+    private java.time.LocalTime recordatorioHora;
 
     @Column(nullable = false)
     private Boolean activo = Boolean.TRUE;
 }
-

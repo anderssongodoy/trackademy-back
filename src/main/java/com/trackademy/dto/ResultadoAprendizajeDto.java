@@ -1,4 +1,3 @@
 package com.trackademy.dto;
 
-public record ResultadoAprendizajeDto(Long id, String descripcion, Long unidadId) {}
-
+public record ResultadoAprendizajeDto(Long id, String texto, String tipo, Long unidadId) {}

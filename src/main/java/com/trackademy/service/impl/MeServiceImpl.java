@@ -46,7 +46,7 @@ public class MeServiceImpl implements MeService {
                 .map(uc -> {
                     var evalDtos = usuarioEvaluacionRepository.findByUsuarioCursoIdOrderBySemanaAsc(uc.getId()).stream()
                             .map(ue -> new UsuarioEvaluacionDto(
-                                    ue.getId(), ue.getEvaluacionOriginal().getCodigo(), ue.getEvaluacionOriginal().getNombre(),
+                                    ue.getId(), ue.getEvaluacionOriginal().getCodigo(), ue.getEvaluacionOriginal().getDescripcion(),
                                     ue.getSemana(), ue.getPorcentaje(), ue.getFechaEstimada(),
                                     ue.getNota() == null ? null : ue.getNota().toPlainString()
                             ))
@@ -67,7 +67,7 @@ public class MeServiceImpl implements MeService {
             var list = usuarioEvaluacionRepository.findByUsuarioCursoIdOrderBySemanaAsc(uc.getId());
             for (UsuarioEvaluacion ue : list) {
                 if (ue.getFechaEstimada() != null && !ue.getFechaEstimada().isBefore(today) && !ue.getFechaEstimada().isAfter(limit)) {
-                    out.add(new UsuarioEvaluacionDto(ue.getId(), ue.getEvaluacionOriginal().getCodigo(), ue.getEvaluacionOriginal().getNombre(), ue.getSemana(), ue.getPorcentaje(), ue.getFechaEstimada(), ue.getNota() == null ? null : ue.getNota().toPlainString()));
+                    out.add(new UsuarioEvaluacionDto(ue.getId(), ue.getEvaluacionOriginal().getCodigo(), ue.getEvaluacionOriginal().getDescripcion(), ue.getSemana(), ue.getPorcentaje(), ue.getFechaEstimada(), ue.getNota() == null ? null : ue.getNota().toPlainString()));
                 }
             }
         }
@@ -91,25 +91,25 @@ public class MeServiceImpl implements MeService {
     private void recalcResumen(UsuarioCurso uc) {
         var evaluaciones = usuarioEvaluacionRepository.findByUsuarioCursoIdOrderBySemanaAsc(uc.getId());
         BigDecimal sumNotas = BigDecimal.ZERO;
-        int sumPesosConNota = 0;
-        int sumPesosPend = 0;
+        BigDecimal sumPesosConNota = BigDecimal.ZERO;
+        BigDecimal sumPesosPend = BigDecimal.ZERO;
         for (UsuarioEvaluacion e : evaluaciones) {
             if (e.getNota() != null) {
-                sumNotas = sumNotas.add(e.getNota().multiply(BigDecimal.valueOf(e.getPorcentaje())));
-                sumPesosConNota += e.getPorcentaje();
+                sumNotas = sumNotas.add(e.getNota().multiply(e.getPorcentaje()));
+                sumPesosConNota = sumPesosConNota.add(e.getPorcentaje());
             } else {
-                sumPesosPend += e.getPorcentaje();
+                sumPesosPend = sumPesosPend.add(e.getPorcentaje());
             }
         }
-        BigDecimal promedioParcial = sumPesosConNota > 0 ? sumNotas.divide(BigDecimal.valueOf(sumPesosConNota), 2, BigDecimal.ROUND_HALF_UP) : null;
+        BigDecimal promedioParcial = sumPesosConNota.compareTo(BigDecimal.ZERO) > 0 ? sumNotas.divide(sumPesosConNota, 2, BigDecimal.ROUND_HALF_UP) : null;
         BigDecimal notaNecesaria = null;
-        if (sumPesosPend > 0) {
+        if (sumPesosPend.compareTo(BigDecimal.ZERO) > 0) {
             // objetivo 12; resolver n necesaria si todo el peso pendiente se obtiene con la misma nota
             BigDecimal objetivo = BigDecimal.valueOf(12);
             if (promedioParcial != null) {
-                BigDecimal totalActual = promedioParcial.multiply(BigDecimal.valueOf(sumPesosConNota));
+                BigDecimal totalActual = promedioParcial.multiply(sumPesosConNota);
                 BigDecimal requerido = objetivo.multiply(BigDecimal.valueOf(100)).subtract(totalActual);
-                notaNecesaria = requerido.divide(BigDecimal.valueOf(sumPesosPend), 2, BigDecimal.ROUND_HALF_UP);
+                notaNecesaria = requerido.divide(sumPesosPend, 2, BigDecimal.ROUND_HALF_UP);
             } else {
                 notaNecesaria = objetivo; // sin notas aún, se asume peso pendiente total
             }
@@ -156,8 +156,8 @@ public class MeServiceImpl implements MeService {
         Usuario u = requireUsuario(userSubject);
         UsuarioHabito h = usuarioHabitoRepository.save(UsuarioHabito.builder()
                 .usuario(u)
-                .nombre(request.nombre())
-                .periodicidad(StringUtils.defaultString(request.periodicidad(), "DIARIO"))
+                .titulo(request.titulo())
+                .frecuencia(StringUtils.defaultString(request.frecuencia(), "diaria"))
                 .activo(true)
                 .build());
         return h.getId();
@@ -185,4 +185,3 @@ public class MeServiceImpl implements MeService {
                 .collect(Collectors.toList());
     }
 }
-
