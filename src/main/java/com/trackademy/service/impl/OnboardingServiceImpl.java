@@ -51,11 +51,13 @@ public class OnboardingServiceImpl implements OnboardingService {
         var carrera = carreraRepository.findById(request.carreraId()).orElseThrow();
 
         UsuarioPerfil perfil = usuarioPerfilRepository.findByUsuarioId(usuario.getId())
-                .orElseGet(() -> usuarioPerfilRepository.save(UsuarioPerfil.builder()
-                        .usuario(usuario).build()));
+                .orElseGet(() -> UsuarioPerfil.builder().usuario(usuario).build());
         perfil.setCampus(campus);
         perfil.setPeriodo(periodo);
         perfil.setCarrera(carrera);
+        if (perfil.getId() == null) {
+            usuarioPerfilRepository.save(perfil);
+        }
 
         List<UsuarioCursoResumenDto> respuesta = new ArrayList<>();
 
