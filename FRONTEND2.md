@@ -1,207 +1,216 @@
-# Trackademy Frontend (Next.js + NextAuth)
+# Trackademy Frontend (Next.js)
 
-Guía para integrar el frontend con el backend protegido por Microsoft Entra ID (JWT) y consumir los endpoints definidos. Incluye setup de NextAuth, manejo del access token y ejemplos de llamadas al backend.
+Guía para implementar el frontend en Next.js consumiendo las APIs del backend descritas en `BACKEND.md` y aprovechando los datos extraídos por el pipeline (ver `README.md`). El diseño garantiza coherencia con el modelo de datos, el flujo de onboarding y las funcionalidades de valor agregado para el estudiante.
 
-## Stack Recomendado
+## Stack recomendado
 
-- Next.js 14+ (App Router) con TypeScript
-- NextAuth (provider Microsoft Entra ID)
-- React Query o fetch nativo (a elección)
-- Tailwind u otro framework de estilos (opcional)
+- Next.js 14 (App Router) + TypeScript
+- UI: Tailwind CSS o MUI (a elección)
+- Estado de datos: React Query (TanStack) o SWR
+- Validación: Zod (DTOs de entrada)
+- Fecha/hora: date-fns + tz (America/Lima)
+- Charts (opcional): Recharts / Chart.js
 
-## Variables de Entorno
+## Variables de entorno (.env.local)
 
-En el frontend (.env.local):
+- `NEXT_PUBLIC_API_BASE_URL`=http://localhost:8080/api
+- `NEXT_PUBLIC_TIMEZONE`=America/Lima
+- `NEXT_PUBLIC_UNIVERSIDAD`=Universidad Tecnológica del Perú
 
-- `NEXTAUTH_URL` = http://localhost:3000
-- `NEXTAUTH_SECRET` = <cadena aleatoria segura>
-- `AUTH_MICROSOFT_ENTRA_ID_ID` = <Client ID de la app (o del API si usas recurso dedicado)>
-- `AUTH_MICROSOFT_ENTRA_ID_SECRET` = <Client Secret>
-- `AUTH_MICROSOFT_ENTRA_ID_TENANT_ID` = <Tenant ID> (opcional; si no se define, usa `common`)
-- `BACKEND_URL` = http://localhost:8080
+## Arquitectura (App Router)
 
-Notas:
-- Si en el backend se valida `aud` (propiedad `trackademy.security.microsoft.audience`), asegúrate de que corresponda con el `Client ID` del token que emite NextAuth (ver sección “Audiencia”).
-- En despliegue, agrega los orígenes del frontend en `trackademy.cors.allowed-origins` del backend.
+- app/
+  - layout.tsx, page.tsx (landing)
+  - onboarding/
+    - layout.tsx
+    - page.tsx (wizard dispatcher)
+    - steps/
+      - campus.tsx
+      - periodo.tsx
+      - carrera.tsx
+      - cursos.tsx
+      - preferencias.tsx (opcional)
+      - resumen.tsx
+  - dashboard/
+    - page.tsx (resumen global)
+    - cursos/
+      - page.tsx (lista cursos activos)
+      - [id]/
+        - page.tsx (detalle del curso)
+        - evaluaciones.tsx (gestión de notas)
+        - horario.tsx (bloques de 45 min)
+  - settings/
+    - recordatorios.tsx
 
-## NextAuth: Microsoft Entra ID
+- lib/
+  - api.ts (cliente fetch/axios con baseURL)
+  - hooks/ useCarreras, useCursosPorCarrera, useCursoDetalle, useOnboarding, useEvaluaciones, useResumen …
+  - types/ (DTOs TypeScript que reflejan respuestas del backend)
+  - utils/ fechas (semana -> fecha estimada), número -> porcentaje, etc.
 
-Archivo sugerido `src/auth.config.ts` (o `auth.ts` según tu estructura):
+## Flujo de Onboarding (UI)
+
+- Paso 1: Campus (obligatorio)
+  - GET /catalog/carreras no es necesario aquí; usar listado de campus del backend (o semilla).
+- Paso 2: Periodo (obligatorio)
+  - Con `fecha_inicio` visible si existe. Mostrar nota si no existe y que se trabajará por "Semana N".
+- Paso 3: Carrera (obligatorio)
+  - GET /catalog/carreras
+- Paso 4: Cursos (obligatorio)
+  - GET /catalog/cursos?carreraId={carreraId}
+  - Mostrar tarjeta con `codigo`, `nombre`, `creditos`, `horas_semanales`, `modalidad` y una vista previa: `sumilla` y `evaluaciones` (porcentaje + semana).
+- Paso 5: Preferencias (opcional)
+  - Anticipación de recordatorios (3, 5, 7 días). Se envía después como POST a /me/preferencias/recordatorios.
+- Resumen
+  - POST /onboarding con `{ campusId, periodoId, carreraId, cursoIds[] }`.
+  - Mostrar confirmación + siguiente acción: "Ir al dashboard".
+
+Estados y validación
+- Botón "Omitir preferencia" y "Reportar datos faltantes" por si catálogos vengan incompletos.
+- Deshabilitar paso siguiente hasta que se seleccione opción válida.
+- Mostrar totales: cantidad de evaluaciones y suma de porcentajes (validación rápida en UI).
+
+## Dashboard y Vistas
+
+- Dashboard global `/dashboard`
+  - KPIs: cursos activos, promedio ponderado (si hay notas), próximos hitos (por semana o fecha estimada), hábitos completados 7d.
+  - Lista de recomendaciones (si existen).
+
+- Cursos activos `/dashboard/cursos`
+  - Tarjetas: `nombre`, `codigo`, `creditos`, `horas_semanales`, `promedio_parcial`, `próxima evaluación` (semana o fecha estimada), riesgo (si aplica).
+
+- Detalle de curso `/dashboard/cursos/[id]`
+  - Secciones:
+    - Descripción: `sumilla`, `metodologia`, `logro_general`
+    - Unidades: acordeones con `titulo`, `semanas`, `logro_especifico`, `temario`
+    - Evaluaciones: tabla con `%`, `semana`, `tipo/codigo`, `observación`
+    - Bibliografía
+    - Políticas (texto completo de "Indicaciones sobre Fórmulas de Evaluación")
+  - Acciones:
+    - Agregar / Editar notas -> `/dashboard/cursos/[id]/evaluaciones`
+    - Editar horario -> `/dashboard/cursos/[id]/horario`
+
+- Gestión de notas `/dashboard/cursos/[id]/evaluaciones`
+  - Renderizar evaluaciones y permitir ingresar `nota` (0-20), marcar `exonerado` o `rezagado` si aplica.
+  - Calcular y mostrar "promedio parcial" y "nota necesaria para llegar a 12".
+  - PATCH /me/evaluaciones/{id}/nota
+
+- Horario de estudio `/dashboard/cursos/[id]/horario`
+  - Mostrar `bloques = horas_semanales` (45 min por bloque).
+  - Permitir agrupar bloques (90/135/180) y arrastrar a día/hora de la semana.
+  - Guardar en `usuario_curso_horario` vía `POST /me/horario`.
+  - Validar solapes: mostrar alerta si se pisan con otro curso.
+
+- Preferencias `/settings/recordatorios`
+  - Form simple: anticipación (3-7 días), canal (por ahora app).
+  - POST /me/preferencias/recordatorios
+
+## DTOs de Frontend (TypeScript — ejemplo)
 
 ```ts
-import type { NextAuthConfig } from "next-auth";
-import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
+// Catálogos
+export type Carrera = { id: number; nombre: string };
+export type CursoCatalogo = {
+  id: number; codigo: string; nombre: string; creditos: number | null;
+  horas_semanales: number | null; modalidad?: string | null;
+};
 
-const tenantId = process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID;
+// Detalle de curso
+export type CursoDetalle = {
+  id: number; codigo: string; nombre: string; anio?: number | null; periodo_texto?: string | null;
+  modalidad?: string | null; creditos?: number | null; horas_semanales?: number | null;
+  silabo: { sumilla?: string; fundamentacion?: string; metodologia?: string; logro_general?: string };
+  unidades: { nro: number; titulo?: string | null; semana_inicio?: number | null; semana_fin?: number | null; logro_especifico?: string | null; temario: string[] }[];
+  evaluaciones: { id: number; codigo: string; tipo?: string | null; porcentaje?: number | null; semana?: number | null; observacion?: string | null }[];
+  bibliografia: { tipo?: string | null; autores?: string | null; titulo?: string | null; editorial?: string | null; anio?: number | null; url?: string | null }[];
+  competencias: { generales: string[]; especificas: string[] };
+  politicas: { seccion: string; texto: string }[];
+};
 
-export const authConfig: NextAuthConfig = {
-  providers: [
-    MicrosoftEntraID({
-      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID!,
-      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,
-      issuer: tenantId
-        ? `https://login.microsoftonline.com/${tenantId}/v2.0`
-        : "https://login.microsoftonline.com/common/v2.0",
-      authorization: {
-        params: {
-          // Solicita scopes OIDC + acceso a tu API si corresponde
-          // Si tu backend valida aud contra el Client ID del API, usa el .default del recurso API
-          scope: `openid profile email offline_access api://${process.env.AUTH_MICROSOFT_ENTRA_ID_ID}/.default`,
-        },
-      },
-    }),
-  ],
-  session: { strategy: "jwt" },
-  callbacks: {
-    async jwt({ token, account }) {
-      // Persistir access_token de Microsoft en el token JWT de NextAuth
-      if (account) {
-        token.access_token = account.access_token;
-        token.id_token = account.id_token;
-        token.expires_at = account.expires_at;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      // Exponer el access_token en session para usar desde el cliente/servidor
-      (session as any).access_token = token.access_token;
-      (session as any).expires_at = token.expires_at;
-      return session;
-    },
-  },
+// Onboarding
+export type OnboardingRequest = {
+  campusId: number; periodoId: number; carreraId: number; cursoIds: number[];
+};
+
+// Evaluaciones del alumno
+export type UsuarioEvaluacion = {
+  id: number; cursoId: number; evaluacionId: number;
+  semana?: number | null; fecha_estimada?: string | null; nota?: number | null;
 };
 ```
 
-Handler (App Router), por ejemplo en `src/app/api/auth/[...nextauth]/route.ts`:
+## Hooks/API client (sugerido)
 
-```ts
-import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
+- `useCarreras` -> GET /catalog/carreras
+- `useCursosPorCarrera(carreraId)` -> GET /catalog/cursos?carreraId={carreraId}
+- `useCursoDetalle(id)` -> GET /catalog/curso/{id}
+- `useOnboarding()` -> POST /onboarding
+- `useMeCursos()` -> GET /me/cursos
+- `useMeEvaluaciones()` -> GET /me/evaluaciones
+- `useEditarNota()` -> PATCH /me/evaluaciones/{id}/nota
+- `usePreferencias()` -> GET/POST /me/preferencias/recordatorios
 
-const handler = NextAuth(authConfig);
-export { handler as GET, handler as POST };
-```
+Cliente API (axios)
+- Base URL desde `NEXT_PUBLIC_API_BASE_URL`
+- Interceptores: manejo de errores y (opcional) auth token
 
-## Audiencia (aud) del Token
+## Lógica de UI y Cálculos
 
-- El backend puede validar `aud` contra `trackademy.security.microsoft.audience`.
-- Opciones:
-  - Modo simple: deja vacía `trackademy.security.microsoft.audience` (se omite validación de audiencia en dev).
-  - Modo recomendado: fija `trackademy.security.microsoft.audience` al Client ID del recurso que emite el token (puede ser la misma app del frontend o un App Registration específico para el API). Ajusta el `scope` de autorización para solicitar token para ese recurso (ej.: `api://<CLIENT_ID_API>/.default`).
+- Proyección de nota: calcular en UI (para feedback instantáneo) y confiar en backend para persistir resumen.
+- Suma de porcentajes: validar que ~= 100 (+/-1) y mostrar aviso si difiere.
+- Fechas estimadas: si backend expone `fecha_estimada`, formatear con timezone America/Lima; si no, mostrar "Semana N".
+- Horario: dibujar grilla semanal (L-D) en intervalos de 45 min; permitir resize para agrupar bloques.
 
-## Cliente HTTP hacia el Backend
+## Accesibilidad y UX
 
-Helper de servidor `src/lib/api.ts` que reenvía el access token en el header `Authorization`:
+- Formularios con validación optimista y mensajes claros.
+- "Omitir" en pasos opcionales para no bloquear el flujo.
+- Estado de carga y vacíos con guías ("Aún no has agregado notas").
 
-```ts
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/auth.config";
+## Errores y estados especiales
 
-const BASE_URL = process.env.BACKEND_URL!;
+- Backend sin `fecha_inicio`: no hay fechas exactas; mostrar "Semana N".
+- Carreras o cursos no disponibles: CTA "Reportar y continuar".
+- Duplicados en evaluaciones/porcentajes: resaltar y permitir continuar (los datos vienen de PDF; se corrigen luego).
 
-export async function apiFetch(path: string, init: RequestInit = {}) {
-  const session = await getServerSession(authConfig);
-  const headers: HeadersInit = {
-    ...(init.headers || {}),
-    Authorization: session && (session as any).access_token
-      ? `Bearer ${(session as any).access_token}`
-      : "",
-    "Content-Type": "application/json",
-  };
-  const res = await fetch(`${BASE_URL}${path}`, { ...init, headers, cache: "no-store" });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Backend ${res.status}: ${text}`);
-  }
-  return res.json();
-}
-```
+## Roadmap UI (no bloqueante)
 
-Uso en Server Components / Server Actions:
-
-```ts
-import { apiFetch } from "@/lib/api";
-
-export async function getMe() {
-  return apiFetch("/api/me");
-}
-```
-
-## Rutas Clave a Consumir
-
-- Catálogo
-  - `GET /api/catalog/carreras?universidadId=...`
-  - `GET /api/catalog/cursos?carreraId=...`
-  - `GET /api/catalog/curso/{id}` → incluye: silabo, resultados de aprendizaje, unidades/temas, evaluaciones, bibliografía, competencias, política de notas
-- Onboarding
-  - `POST /api/onboarding` body: `{ campusId, periodoId, carreraId, cursoIds: number[] }`
-- Usuario (requiere token)
-  - `GET /api/me` → claims y contexto
-  - `GET /api/me/cursos` → resumen por curso con evaluaciones clonadas
-  - `GET /api/me/evaluaciones` → próximas 3 semanas
-  - `POST /api/me/evaluaciones/{id}/nota` body: `{ nota: string }`
-  - `POST /api/me/preferencias/recordatorios` body: `{ anticipacionDias: number }`
-  - `POST /api/me/horario` body: `[{ usuarioCursoId, diaSemana, horaInicio, duracionMin }]`
-  - `POST /api/me/habitos` body: `{ nombre, periodicidad? }`
-  - `POST /api/me/habitos/{id}/log` body: `{ fecha? }`
-  - `GET /api/me/recomendaciones`
-
-## Protección de Páginas
-
-- App Router: protege layouts/segmentos leyendo sesión en el servidor.
-
-```ts
-// src/app/(protected)/layout.tsx
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authConfig } from "@/auth.config";
-
-export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authConfig);
-  if (!session) redirect("/login");
-  return <>{children}</>;
-}
-```
-
-- Alternativa: middleware para forzar login en rutas específicas.
-
-```ts
-// src/middleware.ts
-import { withAuth } from "next-auth/middleware";
-
-export default withAuth({});
-export const config = { matcher: ["/dashboard/:path*", "/me/:path*"] };
-```
-
-## Ejemplo de UI (esqueleto)
-
-- Listar carreras/cursos, seleccionar y hacer `POST /api/onboarding`.
-- Página `Me` con bloques:
-  - Cursos activos (`GET /api/me/cursos`)
-  - Próximas evaluaciones (`GET /api/me/evaluaciones`)
-  - Registrar nota por evaluación (`POST /api/me/evaluaciones/{id}/nota`)
-  - Preferencias de recordatorios y horario
-  - Hábitos y recomendaciones
-
-## CORS / Dominios
-
-- Backend permite orígenes configurados en `trackademy.cors.allowed-origins`.
-- En desarrollo: `http://localhost:3000` ya está habilitado por defecto.
-- En producción: agrega Vercel/Render u otros dominios al property del backend.
-
-## Desarrollo Local
-
-1) Levanta backend: `./mvnw spring-boot:run` (puerto 8080)
-2) Levanta frontend: `pnpm dev`/`npm run dev`/`yarn dev` (puerto 3000)
-3) Inicia sesión por NextAuth (Microsoft). Verifica que en el `session` exista `access_token`.
-4) Navega a una página protegida y consume `/api/me` para validar el token contra el backend.
-
-## Errores Comunes
-
-- 401 del backend: token ausente o inválido (issuer/audience). Revisa `AUTH_MICROSOFT_ENTRA_ID_TENANT_ID` y el scope del provider.
-- CORS bloqueado: agrega el origen del frontend en `trackademy.cors.allowed-origins` del backend.
-- `aud` inválido: alinea `trackademy.security.microsoft.audience` con el recurso que emite el token. En dev, puedes dejarlo vacío (no se valida `aud`).
+- Calendario consolidado de cursos/estudio.
+- Notificaciones in-app y push (si se habilita backend/canal).
+- Visualizaciones de tendencia (promedios por semana, completitud de hábitos).
 
 ---
 
-Con esto, el frontend queda listo para autenticar con Microsoft Entra ID, obtener un access token y consumir el backend protegido. Si quieres, puedo agregar un esqueleto Next.js (rutas, provider y componentes) directamente en otro repo o en una carpeta `front/` para arrancar más rápido.
+Con esta guía, el frontend queda alineado con el backend y el modelo de datos extraído: onboarding simple, vistas de curso completas, gestión de notas y herramientas de organización (horario/recordatorios) basadas en la información disponible hoy.
+
+## Proceso Esperado (End-to-End)
+
+- Landing
+  - CTA "Comenzar" lleva a `/onboarding`.
+
+- Onboarding
+  - Paso Campus: lista de campus desde backend (semilla cargada por db_setup/load_json_to_db). Selección obligatoria.
+  - Paso Periodo: lista de periodos activos; mostrar `fecha_inicio` si existe. Si no hay fecha, UI trabaja por "Semana N".
+  - Paso Carrera: GET de carreras; selección obligatoria.
+  - Paso Cursos: GET de cursos por carrera; selección múltiple de cursos que está cursando. Mostrar info clave (código, horas_semanales, créditos, modalidad) y vista previa de evaluaciones.
+  - Paso Preferencias (opcional): anticipación de recordatorios; permite omitir.
+  - Paso Resumen: POST `/onboarding` con la selección. Redirigir a `/dashboard`.
+
+- Post-onboarding inmediato
+  - `/dashboard`: mostrar KPIs básicos, próximos hitos por semana o fecha estimada (si `fecha_inicio` de periodo está definida).
+  - Lista de cursos activos con acceso rápido a: notas y horario.
+
+- Gestión continua
+  - Notas: en cada curso, ingresar/calcular promedio parcial y "nota necesaria". Persistir en `/me/evaluaciones`.
+  - Horario: asignar bloques de 45 min según `horas_semanales`; evitar solapes; guardar en `/me/horario`.
+  - Preferencias/recordatorios: ajustar en `/settings/recordatorios`.
+
+- Estados de error/ausencia de datos
+  - Si faltan evaluaciones o suman != 100: UI lo muestra y permite continuar (dato proviene del PDF; se corrige luego).
+  - Si falta `fecha_inicio` de periodo: no se calculan fechas, solo "Semana N"; cuando se agregue la fecha en backend, UI mostrará fechas estimadas.
+
+- Datos usados por UI
+  - Catálogos: campus, periodos, carreras, cursos (catálogo)
+  - Detalle de curso: silabo, unidades, evaluaciones, bibliografía, políticas
+  - Usuario: selección de cursos, notas por evaluación, horario por curso, preferencias de recordatorios
+

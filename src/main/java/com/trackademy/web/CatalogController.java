@@ -17,6 +17,16 @@ public class CatalogController {
 
     private final CatalogService catalogService;
 
+    @GetMapping("/campus")
+    public ResponseEntity<java.util.List<com.trackademy.dto.CampusDto>> listCampus(@RequestParam("universidadId") Long universidadId) {
+        return ResponseEntity.ok(catalogService.listarCampus(universidadId));
+    }
+
+    @GetMapping("/periodos")
+    public ResponseEntity<java.util.List<com.trackademy.dto.PeriodoDto>> listPeriodos(@RequestParam("universidadId") Long universidadId) {
+        return ResponseEntity.ok(catalogService.listarPeriodos(universidadId));
+    }
+
     // Nota: por simplicidad, pedimos universidadId por query; 
     // también podríamos derivarlo de config si es fija.
     @GetMapping("/carreras")

@@ -22,6 +22,8 @@ public class CatalogServiceImpl implements CatalogService {
 
     private final CarreraRepository carreraRepository;
     private final CursoRepository cursoRepository;
+    private final CampusRepository campusRepository;
+    private final PeriodoRepository periodoRepository;
     private final UnidadRepository unidadRepository;
     private final TemaRepository temaRepository;
     private final EvaluacionRepository evaluacionRepository;
@@ -30,6 +32,24 @@ public class CatalogServiceImpl implements CatalogService {
     private final SilaboRepository silaboRepository;
     private final CursoCompetenciaRepository cursoCompetenciaRepository;
     private final ResultadoAprendizajeRepository resultadoAprendizajeRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.trackademy.dto.CampusDto> listarCampus(Long universidadId) {
+        log.debug("Listando campus para universidad {}", universidadId);
+        return campusRepository.findByUniversidadIdOrderByNombreAsc(universidadId).stream()
+                .map(c -> new com.trackademy.dto.CampusDto(c.getId(), c.getNombre()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.trackademy.dto.PeriodoDto> listarPeriodos(Long universidadId) {
+        log.debug("Listando periodos para universidad {}", universidadId);
+        return periodoRepository.findByUniversidadIdOrderByEtiquetaAsc(universidadId).stream()
+                .map(p -> new com.trackademy.dto.PeriodoDto(p.getId(), p.getEtiqueta(), p.getFechaInicio(), p.getFechaFin()))
+                .collect(java.util.stream.Collectors.toList());
+    }
 
     @Override
     @Transactional(readOnly = true)
