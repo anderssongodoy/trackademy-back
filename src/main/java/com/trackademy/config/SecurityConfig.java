@@ -37,7 +37,7 @@ public class SecurityConfig {
     @Value("${trackademy.security.accepted-issuers:https://login.microsoftonline.com/}")
     private String acceptedIssuers;
 
-    @Value("${trackademy.cors.allowed-origins:http://localhost:3000}")
+    @Value("${trackademy.cors.allowed-origins:http://localhost:3000,https://trackademy.trinitylabs.app}")
     private String allowedOrigins;
 
     @Bean
