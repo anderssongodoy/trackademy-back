@@ -32,7 +32,6 @@ public class MeServiceImpl implements MeService {
     private final UsuarioHabitoRepository usuarioHabitoRepository;
     private final UsuarioHabitoLogRepository usuarioHabitoLogRepository;
     private final UsuarioCursoHorarioRepository usuarioCursoHorarioRepository;
-    private final UsuarioRepository usuarioRepository;
 
     private Usuario requireUsuario(String subject) {
         return usuarioRepository.findBySubject(subject)
