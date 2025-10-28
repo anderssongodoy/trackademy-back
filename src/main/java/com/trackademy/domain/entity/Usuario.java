@@ -19,6 +19,9 @@ public class Usuario {
     @Column(columnDefinition = "text")
     private String nombre;
 
+    @Column(columnDefinition = "text")
+    private String avatar; // URL o base64 opcional
+
     @Column(name = "created_at", nullable = false)
     private java.time.OffsetDateTime createdAt;
 

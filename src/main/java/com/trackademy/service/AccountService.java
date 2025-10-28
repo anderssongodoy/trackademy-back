@@ -3,6 +3,5 @@ package com.trackademy.service;
 import com.trackademy.dto.LoginStatusDto;
 
 public interface AccountService {
-    LoginStatusDto getLoginStatus(String subject, String email);
+    LoginStatusDto getLoginStatus(String subject, String email, String nombre, String avatar);
 }
-

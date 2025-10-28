@@ -61,9 +61,12 @@ public class MeFeaturesController {
     }
 
     @GetMapping("/status")
-    public com.trackademy.dto.LoginStatusDto status(@AuthenticationPrincipal Jwt jwt) {
+    public com.trackademy.dto.LoginStatusDto status(@AuthenticationPrincipal Jwt jwt,
+                                                    @RequestHeader(value = "X-User-Avatar", required = false) String avatar) {
         String email = jwt.getClaimAsString("preferred_username");
         if (email == null) email = jwt.getClaimAsString("email");
-        return accountService.getLoginStatus(jwt.getSubject(), email);
+        String nombre = jwt.getClaimAsString("name");
+        if (avatar == null) avatar = jwt.getClaimAsString("picture");
+        return accountService.getLoginStatus(jwt.getSubject(), email, nombre, avatar);
     }
 }
