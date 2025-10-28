@@ -25,6 +25,7 @@ Ejemplo curl: `curl -H "Authorization: Bearer $TOKEN" $BACKEND_URL/api/me`
 ## Salud
 
 GET `/health`
+
 - Auth: no
 - 200 Response: `{ "status": "ok" }`
 
@@ -33,8 +34,10 @@ GET `/health`
 ## Usuario
 
 GET `/me`
+
 - Auth: sí
 - 200 Ejemplo:
+
 ```
 {
   "sub": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
@@ -45,8 +48,10 @@ GET `/me`
 ```
 
 GET `/me/cursos`
+
 - Auth: sí
 - 200 Ejemplo:
+
 ```
 [
   {
@@ -60,9 +65,11 @@ GET `/me/cursos`
 ```
 
 GET `/me/evaluaciones`
+
 - Auth: sí
 - Devuelve próximas 3 semanas
 - 200 Ejemplo:
+
 ```
 [
   {"id": 10, "codigo": "EP", "descripcion": "Examen Parcial", "semana": 8, "porcentaje": 30.0, "fechaEstimada": "2025-05-06", "nota": null}
@@ -70,55 +77,67 @@ GET `/me/evaluaciones`
 ```
 
 POST `/me/evaluaciones/{id}/nota`
+
 - Auth: sí
 - Body: `{ "nota": "15" }`
 - 204 sin contenido
 
 POST `/me/preferencias/recordatorios`
+
 - Auth: sí
 - Body: `{ "anticipacionDias": 3 }`
 - 204
 
 POST `/me/horario`
+
 - Auth: sí
 - Body:
+
 ```
 [
   {"usuarioCursoId": 55, "diaSemana": 2, "horaInicio": "08:00", "duracionMin": 90},
   {"usuarioCursoId": 55, "diaSemana": 4, "horaInicio": "10:30", "duracionMin": 45}
 ]
 ```
+
 - 204
 
 POST `/me/habitos`
+
 - Auth: sí
 - Body: `{ "titulo": "Leer 30min", "frecuencia": "diaria" }`
 - 200 Response: `123` (id)
 
 POST `/me/habitos/{id}/log`
+
 - Auth: sí
 - Body: `{ "fecha": "2025-04-10" }` (opcional)
 - 204
 
 GET `/me/recomendaciones`
+
 - Auth: sí
-- 200 Response: `[ "Repasar álgebra antes del viernes" ]`
+- 200 Response: `[ "Repasar {course} antes del {dia}" ]`
 
 ---
 
 ## Catálogo
 
 GET `/catalog/carreras?universidadId={id}`
+
 - Auth: sí
 - 200 Ejemplo: `[ {"id": 1, "nombre": "Ingeniería de Sistemas"} ]`
 
 GET `/catalog/cursos?carreraId={id}`
+
 - Auth: sí
 - 200 Ejemplo: `[ {"id": 100, "codigo": "MAT101", "nombre": "Matemática I"} ]`
 
 GET `/catalog/curso/{id}`
+
 - Auth: sí
 - 200 Ejemplo (parcial):
+
 ```
 {
   "id": 100,
@@ -142,6 +161,7 @@ GET `/catalog/curso/{id}`
 ## Onboarding
 
 POST `/onboarding`
+
 - Auth: sí
 - Body: `{ "campusId": 1, "periodoId": 2, "carreraId": 3, "cursoIds": [100,101] }`
 - 200 Response: `UsuarioCursoResumenDto[]` (igual estructura que `/me/cursos`)
@@ -151,6 +171,7 @@ POST `/onboarding`
 ## Admin (opcional)
 
 POST `/admin/ingesta/json`
+
 - Auth: sí (restringir en despliegue)
 - Body: JSON del extractor (sílabo/cursos)
 - 202 Response: `{ "status": "accepted" }`
@@ -166,5 +187,6 @@ POST `/admin/ingesta/json`
 - 400 Bad Request: validación de body/params
 
 Notas:
+
 - CORS: backend permite orígenes configurados en `trackademy.cors.allowed-origins`.
 - OPTIONS preflight es manejado automáticamente por el backend.

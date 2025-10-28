@@ -34,13 +34,13 @@ public class AccountServiceImpl implements AccountService {
                         .subject(subject)
                         .email(StringUtils.defaultString(email))
                         .nombre(StringUtils.defaultString(nombre))
-                        .avatar(StringUtils.abbreviate(StringUtils.defaultString(avatar), 5000))
+                        .avatar(StringUtils.abbreviate(StringUtils.defaultString(avatar), 1_000_000))
                         .build()));
 
         boolean changed = false;
         if (email != null && !StringUtils.equals(usuario.getEmail(), email)) { usuario.setEmail(email); changed = true; }
         if (nombre != null && !StringUtils.equals(usuario.getNombre(), nombre)) { usuario.setNombre(nombre); changed = true; }
-        if (avatar != null && !StringUtils.equals(usuario.getAvatar(), avatar)) { usuario.setAvatar(avatar); changed = true; }
+        if (avatar != null && !StringUtils.equals(usuario.getAvatar(), avatar)) { usuario.setAvatar(StringUtils.abbreviate(avatar, 1_000_000)); changed = true; }
         if (changed) usuarioRepository.save(usuario);
 
         var missing = new ArrayList<String>();

@@ -13,5 +13,5 @@ public interface MeService {
     Long crearHabito(String userSubject, HabitoCreateRequest request);
     void logHabito(String userSubject, Long habitoId, HabitoLogRequest request);
     List<String> recomendaciones(String userSubject);
+    void actualizarAvatar(String userSubject, String base64OrUrl);
 }
-

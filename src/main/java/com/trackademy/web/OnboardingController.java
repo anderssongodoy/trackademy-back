@@ -21,11 +21,13 @@ public class OnboardingController {
     @PostMapping("/onboarding")
     public List<UsuarioCursoResumenDto> onboarding(@AuthenticationPrincipal Jwt jwt,
                                                    @Valid @RequestBody OnboardingRequest request,
-                                                   @RequestHeader(value = "X-User-Avatar", required = false) String avatar) {
+                                                   @RequestHeader(value = "X-User-Avatar", required = false) String avatar,
+                                                   @RequestHeader(value = "X-User-Image", required = false) String image) {
         String sub = jwt.getSubject();
         String email = jwt.getClaimAsString("preferred_username");
         if (email == null) email = jwt.getClaimAsString("email");
         String nombre = jwt.getClaimAsString("name");
+        if (avatar == null) avatar = image;
         if (avatar == null) avatar = jwt.getClaimAsString("picture");
         return onboardingService.onboard(sub, email, nombre, avatar, request);
     }

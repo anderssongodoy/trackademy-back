@@ -32,6 +32,7 @@ public class MeServiceImpl implements MeService {
     private final UsuarioHabitoRepository usuarioHabitoRepository;
     private final UsuarioHabitoLogRepository usuarioHabitoLogRepository;
     private final UsuarioCursoHorarioRepository usuarioCursoHorarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
     private Usuario requireUsuario(String subject) {
         return usuarioRepository.findBySubject(subject)
@@ -183,5 +184,17 @@ public class MeServiceImpl implements MeService {
         return recomendacionRepository.findByUsuarioIdAndActivoTrue(u.getId()).stream()
                 .map(Recomendacion::getTexto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void actualizarAvatar(String userSubject, String base64OrUrl) {
+        Usuario u = requireUsuario(userSubject);
+        if (base64OrUrl != null && !base64OrUrl.isBlank()) {
+            // Guardar hasta 1MB de texto base64/URL
+            String val = base64OrUrl.length() > 1_000_000 ? base64OrUrl.substring(0, 1_000_000) : base64OrUrl;
+            u.setAvatar(val);
+            usuarioRepository.save(u);
+        }
     }
 }
