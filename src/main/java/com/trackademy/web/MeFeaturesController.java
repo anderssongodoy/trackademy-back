@@ -2,6 +2,7 @@ package com.trackademy.web;
 
 import com.trackademy.dto.*;
 import com.trackademy.service.MeService;
+import com.trackademy.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.List;
 public class MeFeaturesController {
 
     private final MeService meService;
+    private final AccountService accountService;
 
     @GetMapping("/cursos")
     public List<UsuarioCursoResumenDto> cursos(@AuthenticationPrincipal Jwt jwt) {
@@ -57,5 +59,11 @@ public class MeFeaturesController {
     public List<String> recomendaciones(@AuthenticationPrincipal Jwt jwt) {
         return meService.recomendaciones(jwt.getSubject());
     }
-}
 
+    @GetMapping("/status")
+    public com.trackademy.dto.LoginStatusDto status(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("preferred_username");
+        if (email == null) email = jwt.getClaimAsString("email");
+        return accountService.getLoginStatus(jwt.getSubject(), email);
+    }
+}
