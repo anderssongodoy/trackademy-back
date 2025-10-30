@@ -51,7 +51,7 @@ public class MeServiceImpl implements MeService {
                                     ue.getNota() == null ? null : ue.getNota().toPlainString()
                             ))
                             .collect(Collectors.toList());
-                    return new UsuarioCursoResumenDto(uc.getCurso().getId(), uc.getCurso().getNombre(), evalDtos);
+                    return new UsuarioCursoResumenDto(uc.getId(), uc.getCurso().getId(), uc.getCurso().getNombre(), evalDtos);
                 })
                 .collect(Collectors.toList());
     }
@@ -147,6 +147,66 @@ public class MeServiceImpl implements MeService {
                     .duracionMin(e.duracionMin())
                     .build();
             usuarioCursoHorarioRepository.save(h);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<HorarioEntryDto> listarHorario(String userSubject, Long usuarioCursoId) {
+        Usuario u = requireUsuario(userSubject);
+        List<UsuarioCursoHorario> list = (usuarioCursoId != null)
+                ? usuarioCursoHorarioRepository.findByUsuarioCursoId(usuarioCursoId)
+                : usuarioCursoHorarioRepository.findByUsuarioCursoUsuarioId(u.getId());
+        return list.stream()
+                .filter(h -> h.getUsuarioCurso().getUsuario().getId().equals(u.getId()))
+                .map(h -> new HorarioEntryDto(
+                        h.getUsuarioCurso().getId(),
+                        h.getDiaSemana(),
+                        h.getHoraInicio().toString(),
+                        h.getDuracionMin()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<PreferenciaDiaItemDto> listarPreferenciasDia(String userSubject) {
+        Usuario u = requireUsuario(userSubject);
+        List<UsuarioCurso> cursos = usuarioCursoRepository.findByUsuarioId(u.getId());
+        List<PreferenciaDiaItemDto> out = new ArrayList<>();
+        for (UsuarioCurso uc : cursos) {
+            List<UsuarioCursoHorario> canon = usuarioCursoHorarioRepository
+                    .findByUsuarioCursoIdAndHoraInicioAndDuracionMin(uc.getId(), LocalTime.MIDNIGHT, 1);
+            Integer dia = null;
+            if (!canon.isEmpty()) {
+                dia = canon.get(0).getDiaSemana();
+            } else {
+                var all = usuarioCursoHorarioRepository.findByUsuarioCursoId(uc.getId());
+                if (!all.isEmpty()) dia = all.get(0).getDiaSemana();
+            }
+            if (dia != null) out.add(new PreferenciaDiaItemDto(uc.getId(), dia));
+        }
+        return out;
+    }
+
+    @Override
+    @Transactional
+    public void upsertPreferenciasDia(String userSubject, PreferenciasDiaRequest request) {
+        Usuario u = requireUsuario(userSubject);
+        if (request == null || request.items() == null) return;
+        for (PreferenciaDiaItemDto item : request.items()) {
+            UsuarioCurso uc = usuarioCursoRepository.findById(item.usuarioCursoId()).orElseThrow();
+            if (!uc.getUsuario().getId().equals(u.getId())) throw new IllegalArgumentException("Curso no pertenece al usuario");
+            var prev = usuarioCursoHorarioRepository
+                    .findByUsuarioCursoIdAndHoraInicioAndDuracionMin(uc.getId(), LocalTime.MIDNIGHT, 1);
+            prev.forEach(h -> usuarioCursoHorarioRepository.deleteById(h.getId()));
+            UsuarioCursoHorario marker = UsuarioCursoHorario.builder()
+                    .usuarioCurso(uc)
+                    .diaSemana(item.diaSemana())
+                    .horaInicio(LocalTime.MIDNIGHT)
+                    .duracionMin(1)
+                    .build();
+            usuarioCursoHorarioRepository.save(marker);
         }
     }
 

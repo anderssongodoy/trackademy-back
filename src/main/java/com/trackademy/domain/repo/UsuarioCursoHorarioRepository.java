@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface UsuarioCursoHorarioRepository extends JpaRepository<UsuarioCursoHorario, Long> {
     List<UsuarioCursoHorario> findByUsuarioCursoId(Long usuarioCursoId);
+    List<UsuarioCursoHorario> findByUsuarioCursoUsuarioId(Long usuarioId);
+    List<UsuarioCursoHorario> findByUsuarioCursoIdAndHoraInicioAndDuracionMin(Long usuarioCursoId, java.time.LocalTime horaInicio, Integer duracionMin);
 }
-

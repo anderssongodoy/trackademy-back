@@ -45,6 +45,12 @@ public class MeFeaturesController {
         meService.upsertHorario(jwt.getSubject(), entries);
     }
 
+    @GetMapping("/horario")
+    public List<HorarioEntryDto> listarHorario(@AuthenticationPrincipal Jwt jwt,
+                                               @RequestParam(value = "usuarioCursoId", required = false) Long usuarioCursoId) {
+        return meService.listarHorario(jwt.getSubject(), usuarioCursoId);
+    }
+
     @PostMapping("/habitos")
     public Long crearHabito(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody HabitoCreateRequest req) {
         return meService.crearHabito(jwt.getSubject(), req);
@@ -76,5 +82,16 @@ public class MeFeaturesController {
     public void actualizarAvatar(@AuthenticationPrincipal Jwt jwt,
                                  @RequestBody com.trackademy.dto.AvatarRequest body) {
         meService.actualizarAvatar(jwt.getSubject(), body.image());
+    }
+
+    @GetMapping("/hitos/preferencias")
+    public List<com.trackademy.dto.PreferenciaDiaItemDto> listarPreferencias(@AuthenticationPrincipal Jwt jwt) {
+        return meService.listarPreferenciasDia(jwt.getSubject());
+    }
+
+    @PostMapping("/hitos/preferencias")
+    public void upsertPreferencias(@AuthenticationPrincipal Jwt jwt,
+                                   @RequestBody com.trackademy.dto.PreferenciasDiaRequest body) {
+        meService.upsertPreferenciasDia(jwt.getSubject(), body);
     }
 }

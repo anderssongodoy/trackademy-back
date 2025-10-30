@@ -10,6 +10,9 @@ public interface MeService {
     void registrarNota(String userSubject, Long usuarioEvaluacionId, String notaStr);
     void upsertPreferenciasRecordatorios(String userSubject, int anticipacionDias);
     void upsertHorario(String userSubject, List<HorarioEntryDto> entries);
+    java.util.List<HorarioEntryDto> listarHorario(String userSubject, Long usuarioCursoId);
+    java.util.List<PreferenciaDiaItemDto> listarPreferenciasDia(String userSubject);
+    void upsertPreferenciasDia(String userSubject, PreferenciasDiaRequest request);
     Long crearHabito(String userSubject, HabitoCreateRequest request);
     void logHabito(String userSubject, Long habitoId, HabitoLogRequest request);
     List<String> recomendaciones(String userSubject);

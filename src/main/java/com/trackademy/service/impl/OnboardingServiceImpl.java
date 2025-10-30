@@ -111,7 +111,7 @@ public class OnboardingServiceImpl implements OnboardingService {
                     ))
                     .collect(Collectors.toList());
 
-            respuesta.add(new UsuarioCursoResumenDto(curso.getId(), curso.getNombre(), evalDtos));
+            respuesta.add(new UsuarioCursoResumenDto(uc.getId(), curso.getId(), curso.getNombre(), evalDtos));
         }
 
         return respuesta;

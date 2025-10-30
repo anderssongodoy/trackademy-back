@@ -24,7 +24,7 @@ public class Usuario {
 
     @Column(name = "created_at", nullable = false)
     private java.time.OffsetDateTime createdAt;
-
+    
     @PrePersist
     void prePersist() {
         if (this.createdAt == null) {
