@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,16 +139,60 @@ public class MeServiceImpl implements MeService {
     @Transactional
     public void upsertHorario(String userSubject, List<HorarioEntryDto> entries) {
         Usuario u = requireUsuario(userSubject);
+
+        if (entries == null) return;
+
+        // 1) Agrupar por usuarioCursoId
+        Map<Long, List<HorarioEntryDto>> grupos = new HashMap<>();
         for (HorarioEntryDto e : entries) {
-            UsuarioCurso uc = usuarioCursoRepository.findById(e.usuarioCursoId()).orElseThrow();
-            if (!uc.getUsuario().getId().equals(u.getId())) throw new IllegalArgumentException("Curso no pertenece al usuario");
-            UsuarioCursoHorario h = UsuarioCursoHorario.builder()
-                    .usuarioCurso(uc)
-                    .diaSemana(e.diaSemana())
-                    .horaInicio(LocalTime.parse(e.horaInicio()))
-                    .duracionMin(e.duracionMin())
-                    .build();
-            usuarioCursoHorarioRepository.save(h);
+            if (e == null) continue;
+            grupos.computeIfAbsent(e.usuarioCursoId(), k -> new ArrayList<>()).add(e);
+        }
+
+        // 2) Validar TODOS los grupos antes de tocar BD
+        Map<Long, UsuarioCurso> cursosCache = new HashMap<>();
+        for (Map.Entry<Long, List<HorarioEntryDto>> kv : grupos.entrySet()) {
+            Long ucId = kv.getKey();
+            UsuarioCurso uc = usuarioCursoRepository.findById(ucId).orElseThrow();
+            if (!uc.getUsuario().getId().equals(u.getId())) {
+                throw new IllegalArgumentException("Curso no pertenece al usuario");
+            }
+            cursosCache.put(ucId, uc);
+            for (HorarioEntryDto e : kv.getValue()) {
+                Integer dia = e.diaSemana();
+                if (dia == null || dia < 1 || dia > 7) {
+                    throw new IllegalArgumentException("diaSemana fuera de rango");
+                }
+                LocalTime.parse(e.horaInicio()); // valida formato HH:mm
+                Integer dur = e.duracionMin();
+                if (dur == null || dur < 45 || dur % 45 != 0) {
+                    throw new IllegalArgumentException("duracionMin debe ser múltiplo de 45 y >= 45");
+                }
+            }
+        }
+
+        // 3) Por cada grupo: borrar todo y reinsertar (con expansión 45m)
+        for (Map.Entry<Long, List<HorarioEntryDto>> kv : grupos.entrySet()) {
+            Long ucId = kv.getKey();
+            UsuarioCurso uc = cursosCache.get(ucId);
+
+            // borrar existentes del curso
+            usuarioCursoHorarioRepository.deleteByUsuarioCursoId(ucId);
+
+            // insertar nuevos bloques
+            for (HorarioEntryDto e : kv.getValue()) {
+                LocalTime base = LocalTime.parse(e.horaInicio());
+                int blocks = e.duracionMin() / 45;
+                for (int i = 0; i < blocks; i++) {
+                    UsuarioCursoHorario h = UsuarioCursoHorario.builder()
+                            .usuarioCurso(uc)
+                            .diaSemana(e.diaSemana())
+                            .horaInicio(base.plusMinutes(45L * i))
+                            .duracionMin(45)
+                            .build();
+                    usuarioCursoHorarioRepository.save(h);
+                }
+            }
         }
     }
 

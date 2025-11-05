@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -41,8 +42,9 @@ public class MeFeaturesController {
     }
 
     @PostMapping("/horario")
-    public void upsertHorario(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody List<HorarioEntryDto> entries) {
+    public ResponseEntity<Void> upsertHorario(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody List<HorarioEntryDto> entries) {
         meService.upsertHorario(jwt.getSubject(), entries);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/horario")
