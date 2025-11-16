@@ -25,6 +25,12 @@ public class MeFeaturesController {
         return meService.cursos(jwt.getSubject());
     }
 
+    @PutMapping("/cursos")
+    public List<UsuarioCursoResumenDto> reemplazarCursos(@AuthenticationPrincipal Jwt jwt,
+                                                         @Valid @RequestBody OnboardingRequest body) {
+        return meService.reemplazarCursos(jwt.getSubject(), body);
+    }
+
     @GetMapping("/evaluaciones")
     public List<UsuarioEvaluacionDto> proximasEvaluaciones(@AuthenticationPrincipal Jwt jwt) {
         return meService.proximasEvaluaciones(jwt.getSubject());

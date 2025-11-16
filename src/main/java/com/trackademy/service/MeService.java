@@ -17,4 +17,7 @@ public interface MeService {
     void logHabito(String userSubject, Long habitoId, HabitoLogRequest request);
     List<String> recomendaciones(String userSubject);
     void actualizarAvatar(String userSubject, String base64OrUrl);
+
+    // Sincroniza el set de cursos del usuario (reemplazo exacto)
+    List<UsuarioCursoResumenDto> reemplazarCursos(String userSubject, com.trackademy.dto.OnboardingRequest request);
 }

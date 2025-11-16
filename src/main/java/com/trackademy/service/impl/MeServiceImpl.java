@@ -34,6 +34,14 @@ public class MeServiceImpl implements MeService {
     private final UsuarioHabitoRepository usuarioHabitoRepository;
     private final UsuarioHabitoLogRepository usuarioHabitoLogRepository;
     private final UsuarioCursoHorarioRepository usuarioCursoHorarioRepository;
+    private final CampusRepository campusRepository;
+    private final PeriodoRepository periodoRepository;
+    private final CarreraRepository carreraRepository;
+    private final CursoRepository cursoRepository;
+    private final UnidadRepository unidadRepository;
+    private final EvaluacionRepository evaluacionRepository;
+    private final RiskEventRepository riskEventRepository;
+    private final UsuarioPerfilRepository usuarioPerfilRepository;
 
     private Usuario requireUsuario(String subject) {
         return usuarioRepository.findBySubject(subject)
@@ -74,6 +82,97 @@ public class MeServiceImpl implements MeService {
             }
         }
         return out;
+    }
+
+    @Override
+    @Transactional
+    public List<UsuarioCursoResumenDto> reemplazarCursos(String userSubject, com.trackademy.dto.OnboardingRequest request) {
+        Usuario u = requireUsuario(userSubject);
+
+        var campus = campusRepository.findById(request.campusId()).orElseThrow();
+        var periodo = periodoRepository.findById(request.periodoId()).orElseThrow();
+        var carrera = carreraRepository.findById(request.carreraId()).orElseThrow();
+
+        // Upsert perfil (campus/periodo/carrera)
+        UsuarioPerfil perfil = usuarioPerfilRepository.findByUsuarioId(u.getId()).orElse(null);
+        if (perfil == null) {
+            perfil = new UsuarioPerfil();
+            perfil.setUsuario(u);
+        }
+        perfil.setCampus(campus);
+        perfil.setPeriodo(periodo);
+        perfil.setCarrera(carrera);
+        usuarioPerfilRepository.save(perfil);
+
+        // Calcula conjuntos
+        java.util.Set<Long> nuevos = new java.util.HashSet<>(request.cursoIds());
+        java.util.List<UsuarioCurso> actuales = usuarioCursoRepository.findByUsuarioId(u.getId());
+
+        // Eliminar los que ya no están
+        for (UsuarioCurso uc : actuales) {
+            if (!nuevos.contains(uc.getCurso().getId())) {
+                // borrar dependencias primero
+                usuarioCursoHorarioRepository.deleteByUsuarioCursoId(uc.getId());
+                usuarioEvaluacionRepository.deleteByUsuarioCursoId(uc.getId());
+                usuarioCursoResumenRepository.deleteByUsuarioCursoId(uc.getId());
+                riskEventRepository.deleteByUsuarioCursoId(uc.getId());
+                usuarioCursoRepository.delete(uc);
+            }
+        }
+
+        // Añadir faltantes y clonar evaluaciones solo para nuevos
+        java.util.Set<Long> existentes = usuarioCursoRepository.findByUsuarioId(u.getId()).stream()
+                .map(uc -> uc.getCurso().getId()).collect(java.util.stream.Collectors.toSet());
+
+        for (Long cursoId : nuevos) {
+            if (!existentes.contains(cursoId)) {
+                Curso curso = cursoRepository.findById(cursoId).orElseThrow();
+                UsuarioCurso uc = usuarioCursoRepository.save(UsuarioCurso.builder()
+                        .usuario(u)
+                        .curso(curso)
+                        .build());
+
+                var evalsOrigen = evaluacionRepository.findByCursoIdOrderBySemanaAsc(cursoId);
+                java.util.List<UsuarioEvaluacion> clones = new java.util.ArrayList<>();
+                for (Evaluacion ev : evalsOrigen) {
+                    UsuarioEvaluacion ue = UsuarioEvaluacion.builder()
+                            .usuarioCurso(uc)
+                            .evaluacionOriginal(ev)
+                            .semana(ev.getSemana())
+                            .porcentaje(ev.getPorcentaje())
+                            .fechaEstimada(calcularFechaEstimada(periodo.getFechaInicio(), ev.getSemana()))
+                            .nota(null)
+                            .build();
+                    clones.add(ue);
+                }
+                if (!clones.isEmpty()) {
+                    usuarioEvaluacionRepository.saveAll(clones);
+                }
+            }
+        }
+
+        // Responder lista actual
+        return usuarioCursoRepository.findByUsuarioId(u.getId()).stream()
+                .map(uc -> {
+                    var evalDtos = usuarioEvaluacionRepository.findByUsuarioCursoIdOrderBySemanaAsc(uc.getId()).stream()
+                            .map(ue -> new UsuarioEvaluacionDto(
+                                    ue.getId(), ue.getEvaluacionOriginal().getCodigo(), ue.getEvaluacionOriginal().getDescripcion(),
+                                    ue.getSemana(), ue.getPorcentaje(), ue.getFechaEstimada(),
+                                    ue.getNota() == null ? null : ue.getNota().toPlainString()
+                            ))
+                            .collect(java.util.stream.Collectors.toList());
+                    return new UsuarioCursoResumenDto(uc.getId(), uc.getCurso().getId(), uc.getCurso().getNombre(), evalDtos);
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    private java.time.LocalDate calcularFechaEstimada(java.time.LocalDate fechaInicioPeriodo, Integer semana) {
+        if (fechaInicioPeriodo == null || semana == null || semana <= 0) return null;
+        java.time.LocalDate startMonday = fechaInicioPeriodo;
+        if (startMonday.getDayOfWeek() != java.time.DayOfWeek.MONDAY) {
+            startMonday = startMonday.minusDays((startMonday.getDayOfWeek().getValue() + 6) % 7);
+        }
+        return startMonday.plusWeeks(semana - 1L);
     }
 
     @Override
@@ -286,9 +385,76 @@ public class MeServiceImpl implements MeService {
     @Transactional(readOnly = true)
     public List<String> recomendaciones(String userSubject) {
         Usuario u = requireUsuario(userSubject);
-        return recomendacionRepository.findByUsuarioIdAndActivoTrue(u.getId()).stream()
+
+        // 1) Recomendaciones persistidas
+        List<String> persistidas = recomendacionRepository.findByUsuarioIdAndActivoTrue(u.getId()).stream()
                 .map(Recomendacion::getTexto)
                 .collect(Collectors.toList());
+
+        // 2) Semana actual del periodo (si existe)
+        Integer semanaActual = null;
+        var perfilOpt = usuarioPerfilRepository.findByUsuarioId(u.getId());
+        if (perfilOpt.isPresent()) {
+            var periodo = perfilOpt.get().getPeriodo();
+            if (periodo != null && periodo.getFechaInicio() != null) {
+                java.time.LocalDate startMonday = periodo.getFechaInicio();
+                if (startMonday.getDayOfWeek() != java.time.DayOfWeek.MONDAY) {
+                    startMonday = startMonday.minusDays((startMonday.getDayOfWeek().getValue() + 6) % 7);
+                }
+                java.time.LocalDate today = java.time.LocalDate.now();
+                java.time.LocalDate todayMonday = today;
+                if (todayMonday.getDayOfWeek() != java.time.DayOfWeek.MONDAY) {
+                    todayMonday = todayMonday.minusDays((todayMonday.getDayOfWeek().getValue() + 6) % 7);
+                }
+                long diff = java.time.temporal.ChronoUnit.WEEKS.between(startMonday, todayMonday) + 1;
+                if (diff < 1) diff = 1; // mínimo semana 1
+                semanaActual = (int) diff;
+            }
+        }
+
+        // 3) Recomendaciones dinámicas por unidades de la semana actual
+        List<String> dinamicas = new ArrayList<>();
+        if (semanaActual != null) {
+            for (UsuarioCurso uc : usuarioCursoRepository.findByUsuarioId(u.getId())) {
+                var curso = uc.getCurso();
+                var unidades = unidadRepository.findByCursoIdOrderByNroAsc(curso.getId());
+                for (Unidad un : unidades) {
+                    Integer ini = un.getSemanaInicio();
+                    Integer fin = un.getSemanaFin();
+                    boolean match;
+                    if (ini == null && fin == null) {
+                        match = false;
+                    } else if (ini == null) {
+                        match = semanaActual <= fin;
+                    } else if (fin == null) {
+                        match = java.util.Objects.equals(semanaActual, ini);
+                    } else {
+                        match = ini <= semanaActual && semanaActual <= fin;
+                    }
+                    if (match) {
+                        String logro = un.getLogroEspecifico();
+                        if (logro != null) {
+                            logro = logro.replaceAll("\n", " ");
+                            if (logro.length() > 160) logro = logro.substring(0, 160) + "…";
+                        }
+                        String texto = "Semana " + semanaActual + ": en " + curso.getNombre() +
+                                " estudia la unidad " + (un.getNro() == null ? "" : ("#" + un.getNro() + ": ")) +
+                                (un.getTitulo() == null ? "(sin título)" : un.getTitulo()) +
+                                (StringUtils.isBlank(logro) ? "" : ". Logro: " + logro);
+                        dinamicas.add(texto);
+                    }
+                }
+            }
+        }
+
+        // 4) Unir y limitar para no saturar el front
+        List<String> out = new ArrayList<>();
+        out.addAll(dinamicas);
+        for (String s : persistidas) {
+            if (out.size() >= 8) break;
+            out.add(s);
+        }
+        return out;
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CatalogServiceImpl implements CatalogService {
     private static final Logger log = LoggerFactory.getLogger(CatalogServiceImpl.class);
+    private static final String NOMBRE_TODAS_CARRERAS = "Todas las carreras";
 
     private final CarreraRepository carreraRepository;
     private final CursoRepository cursoRepository;
@@ -56,6 +57,7 @@ public class CatalogServiceImpl implements CatalogService {
     public List<CarreraDto> listarCarreras(Long universidadId) {
         log.debug("Listando carreras para universidad {}", universidadId);
         return carreraRepository.findByUniversidadIdOrderByNombreAsc(universidadId).stream()
+                .filter(c -> c.getNombre() == null || !c.getNombre().equalsIgnoreCase(NOMBRE_TODAS_CARRERAS))
                 .map(c -> new CarreraDto(c.getId(), c.getNombre()))
                 .collect(Collectors.toList());
     }
@@ -64,8 +66,33 @@ public class CatalogServiceImpl implements CatalogService {
     @Transactional(readOnly = true)
     public List<CursoDto> listarCursosPorCarrera(Long carreraId) {
         log.debug("Listando cursos por carrera {}", carreraId);
-        return cursoRepository.findByCarreraId(carreraId).stream()
-                .map(c -> new CursoDto(c.getId(), StringUtils.defaultString(c.getCodigo()), c.getNombre()))
+        // Carrera seleccionada (para conocer su universidad)
+        Carrera carrera = carreraRepository.findById(carreraId)
+                .orElseThrow(() -> new IllegalArgumentException("Carrera no encontrada"));
+
+        // Buscar la carrera especial "Todas las carreras" en la misma universidad (si existe)
+        var carreraTodasOpt = carreraRepository.findFirstByUniversidadIdAndNombreIgnoreCase(
+                carrera.getUniversidad().getId(), NOMBRE_TODAS_CARRERAS);
+
+        // Cursos de la carrera seleccionada
+        var cursosCarrera = cursoRepository.findByCarreraId(carreraId);
+
+        // Cursos vinculados a "Todas las carreras" (si existe esa carrera en la universidad)
+        var cursosTodas = carreraTodasOpt
+                .map(ca -> cursoRepository.findByCarreraId(ca.getId()))
+                .orElseGet(java.util.List::of);
+
+        // Unir, deduplicar por id y ordenar por nombre asc
+        java.util.Map<Long, CursoDto> dedup = new java.util.LinkedHashMap<>();
+        for (Curso c : cursosCarrera) {
+            dedup.putIfAbsent(c.getId(), new CursoDto(c.getId(), StringUtils.defaultString(c.getCodigo()), c.getNombre()));
+        }
+        for (Curso c : cursosTodas) {
+            dedup.putIfAbsent(c.getId(), new CursoDto(c.getId(), StringUtils.defaultString(c.getCodigo()), c.getNombre()));
+        }
+
+        return dedup.values().stream()
+                .sorted(java.util.Comparator.comparing(CursoDto::nombre, java.text.Collator.getInstance()))
                 .collect(Collectors.toList());
     }
 
