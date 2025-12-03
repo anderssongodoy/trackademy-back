@@ -1,0 +1,80 @@
+2025-11-27 11:50:42 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 11:50:43 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 11:50:43 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 11:50:45 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 19308 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 11:50:45 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 11:50:45 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 11:50:56 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 11:50:56 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 11:50:56 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 8 ms
+2025-11-27 11:50:56 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 13.265 seconds (process running for 17.058)
+2025-11-27 11:56:54 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 11:56:54 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 11:56:55 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 11:56:56 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 3960 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 11:56:56 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 11:56:56 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 11:57:08 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 11:57:08 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 11:57:08 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 5 ms
+2025-11-27 11:57:08 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 12.975 seconds (process running for 17.804)
+2025-11-27 12:19:50 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 12:19:51 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 12:19:51 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 12:19:53 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 16664 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 12:19:53 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 12:19:53 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 12:20:05 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 12:20:05 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 12:20:05 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 8 ms
+2025-11-27 12:20:05 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 13.783 seconds (process running for 18.841)
+2025-11-27 12:24:50 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 12:24:51 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 12:24:51 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 12:24:52 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 14408 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 12:24:52 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 12:24:52 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 12:25:01 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 12:25:01 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 12:25:01 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 10 ms
+2025-11-27 12:25:01 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 9.869 seconds (process running for 14.886)
+2025-11-27 12:32:20 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 12:32:21 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 12:32:22 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 12:32:24 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 19936 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 12:32:24 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 12:32:24 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 12:32:40 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 12:32:40 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 12:32:40 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 9 ms
+2025-11-27 12:32:40 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 18.599 seconds (process running for 25.705)
+2025-11-27 12:42:56 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 12:42:57 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 12:42:57 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 12:42:59 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 12316 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 12:42:59 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 12:42:59 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 12:43:15 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 12:43:15 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 12:43:15 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 6 ms
+2025-11-27 12:43:15 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 17.796 seconds (process running for 21.468)
+2025-11-27 12:54:03 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 12:54:03 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 12:54:03 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 12:54:05 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 17300 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 12:54:05 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 12:54:05 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 12:54:13 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 12:54:13 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 12:54:13 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 3 ms
+2025-11-27 12:54:14 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 10.203 seconds (process running for 13.507)
+2025-11-27 17:09:21 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.trackademy.web.MeFeaturesControllerTest]: MeFeaturesControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-11-27 17:09:22 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.trackademy.TrackademyApplication for test class com.trackademy.web.MeFeaturesControllerTest
+2025-11-27 17:09:22 [main] INFO  o.s.b.d.r.RestartApplicationListener - Restart disabled due to context in which it is running
+2025-11-27 17:09:23 [main] INFO  c.t.web.MeFeaturesControllerTest - Starting MeFeaturesControllerTest using Java 21.0.7 with PID 15332 (started by uu in C:\Users\uu\Desktop\trackademy-project\trackademy-back)
+2025-11-27 17:09:23 [main] DEBUG c.t.web.MeFeaturesControllerTest - Running with Spring Boot v3.5.6, Spring v6.2.11
+2025-11-27 17:09:23 [main] INFO  c.t.web.MeFeaturesControllerTest - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 17:09:37 [main] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2025-11-27 17:09:37 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2025-11-27 17:09:37 [main] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 5 ms
+2025-11-27 17:09:37 [main] INFO  c.t.web.MeFeaturesControllerTest - Started MeFeaturesControllerTest in 15.032 seconds (process running for 18.769)
